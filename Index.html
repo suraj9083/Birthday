@@ -1,0 +1,449 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Happy Birthday — A Little Card</title>
+<style>
+  :root{
+    --bg1: #fff6fb;
+    --bg2: #fff0f8;
+    --accent: #ff6fb5;
+    --soft: #ffd7ec;
+    --text: #3a2b3a;
+    --glass: rgba(255,255,255,0.6);
+  }
+
+  /* page */
+  *{box-sizing: border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background: radial-gradient(1200px 600px at 20% 10%, #fff7ff 0%, transparent 20%),
+                radial-gradient(1000px 500px at 90% 90%, #fff2f6 0%, transparent 18%),
+                linear-gradient(180deg,var(--bg1),var(--bg2));
+    font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    color:var(--text);
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    padding:24px;
+  }
+
+  /* container */
+  .card-wrap{
+    width: min(920px, 96vw);
+    max-width:920px;
+    display:grid;
+    grid-template-columns: 420px 1fr;
+    gap:28px;
+    align-items:center;
+    transform-style:preserve-3d;
+    perspective:1400px;
+  }
+
+  /* the 3D photo card */
+  .photo-card{
+    width:100%;
+    height:560px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.7));
+    border-radius:26px;
+    padding:20px;
+    box-shadow:
+      0 18px 40px rgba(107,40,90,0.12),
+      0 6px 18px rgba(80,30,60,0.06),
+      inset 0 1px 0 rgba(255,255,255,0.6);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+    overflow:hidden;
+    transform-style:preserve-3d;
+    transition: box-shadow 400ms ease;
+    will-change: transform;
+  }
+
+  .photo-inner{
+    width:360px;
+    height:480px;
+    border-radius:20px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+    box-shadow: 0 10px 30px rgba(90,30,60,0.12);
+    transform-style:preserve-3d;
+    transition: transform 300ms cubic-bezier(.2,.9,.2,1);
+    position:relative;
+    overflow:hidden;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  /* photo */
+  .photo{
+    width: 92%;
+    height: 92%;
+    object-fit:cover;
+    border-radius:14px;
+    box-shadow: 0 8px 24px rgba(80,30,60,0.14);
+    transform: translateZ(40px) scale(1.02);
+    transition: transform 300ms ease, filter 300ms ease;
+    filter: saturate(1.02) contrast(1.03);
+  }
+
+  /* soft overlay heart glow on top of photo */
+  .heart-overlay{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    display:block;
+    background: radial-gradient(200px 120px at 15% 10%, rgba(255,255,255,0.45), transparent 20%),
+                radial-gradient(160px 120px at 90% 80%, rgba(255,239,247,0.6), transparent 22%);
+    mix-blend-mode:soft-light;
+  }
+
+  /* right column: message + controls */
+  .message{
+    padding:26px 18px;
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+    align-items:flex-start;
+  }
+
+  h1{
+    margin:0;
+    font-size: clamp(22px, 3.6vw, 34px);
+    letter-spacing:-0.6px;
+    line-height:1.02;
+    color:#3d213d;
+    display:flex;
+    gap:12px;
+    align-items:center;
+  }
+
+  .sub{
+    margin:0;
+    color:#6d4b5f;
+    font-size:14px;
+  }
+
+  .greeting{
+    margin-top:12px;
+    font-size:16px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.6), rgba(255,255,255,0.2));
+    padding:10px 14px;
+    border-radius:12px;
+    box-shadow: 0 6px 18px rgba(80,30,60,0.06);
+    color:#4b2c3b;
+    max-width:100%;
+  }
+
+  /* cute little description / soft text */
+  .soft-text{
+    margin-top:8px;
+    color:#5a3a49;
+    font-size:15px;
+    line-height:1.5;
+  }
+
+  /* button */
+  .btn{
+    margin-top:auto;
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    background: linear-gradient(90deg, var(--accent), #ff9ccf);
+    border:none;
+    padding:12px 18px;
+    color:white;
+    border-radius:12px;
+    font-weight:600;
+    cursor:pointer;
+    box-shadow: 0 10px 28px rgba(255,110,170,0.16);
+    transform: translateZ(0);
+  }
+
+  .btn:active{ transform: translateY(1px) }
+
+  /* floating hearts (decorative) */
+  .floating{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    overflow:visible;
+  }
+
+  .heart{
+    position:absolute;
+    width:26px;
+    height:26px;
+    transform-origin:center;
+    opacity:0.95;
+    animation: floatUp linear infinite;
+    mix-blend-mode:screen;
+    filter: drop-shadow(0 6px 12px rgba(120,30,80,0.14));
+  }
+
+  @keyframes floatUp{
+    0%{ transform: translateY(0) scale(0.9) rotate(0deg); opacity:.95}
+    100%{ transform: translateY(-520px) scale(1.1) rotate(35deg); opacity:0}
+  }
+
+  /* confetti sparkles */
+  .sparkle{
+    position:absolute;
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    opacity:0.92;
+    transform: translateY(0);
+    animation: sparkleMove linear infinite;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  }
+  @keyframes sparkleMove{
+    0%{ transform: translateY(0) scale(1); opacity:1 }
+    100%{ transform: translateY(-420px) scale(0.6); opacity:0 }
+  }
+
+  /* small responsive adjustments */
+  @media (max-width:880px){
+    .card-wrap{ grid-template-columns: 1fr; gap:18px }
+    .photo-card{ height:520px }
+    .photo-inner{ width:320px; height:420px }
+  }
+
+  @media (max-width:420px){
+    .photo-inner{ width:86%; height:360px }
+    .message{ padding:12px 4px }
+    h1{ font-size:20px }
+  }
+
+  /* gentle entrance */
+  .card-wrap{ animation: appear .8s cubic-bezier(.2,.9,.2,1) both; }
+  @keyframes appear{
+    from{ opacity:0; transform: translateY(14px) scale(.995) }
+    to{ opacity:1; transform: translateY(0) scale(1) }
+  }
+
+  /* little caption under photo */
+  .photo-caption{
+    position:absolute;
+    left:24px;
+    bottom:18px;
+    font-size:13px;
+    color:#5b3b4e;
+    background: rgba(255,255,255,0.6);
+    padding:8px 12px;
+    border-radius:999px;
+    box-shadow: 0 6px 18px rgba(80,30,60,0.06);
+    transform: translateZ(60px);
+    backdrop-filter: blur(4px);
+  }
+
+  /* sparkle pulse on the name */
+  .name{
+    font-weight:700;
+    background: linear-gradient(90deg,#5a2a4a,#a0326e);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    font-size:20px;
+  }
+</style>
+</head>
+<body>
+  <div class="card-wrap" id="cardWrap" aria-live="polite">
+    <!-- LEFT: 3D Photo -->
+    <div class="photo-card" id="photoCard" role="img" aria-label="Birthday photo card">
+      <div class="photo-inner" id="photoInner">
+        <!-- Replace "photo.jpg" with your chosen image -->
+        <img class="photo" id="portrait" src="photo.jpg" alt="Sweet photo" onerror="this.style.filter='blur(6px)'; this.alt='Replace photo.jpg with your image'">
+        <div class="heart-overlay" aria-hidden="true"></div>
+        <div class="photo-caption">With all my love 💖</div>
+      </div>
+
+      <!-- floating decoration layer -->
+      <div class="floating" id="floatingLayer" aria-hidden="true"></div>
+
+      <!-- sparkles -->
+      <div class="floating" id="sparkles" aria-hidden="true"></div>
+    </div>
+
+    <!-- RIGHT: Message -->
+    <div class="message">
+      <h1>Happy Birthday, <span class="name" id="girlName">Baby</span> 🎂</h1>
+      <p class="sub">A little thing I made for you — soft, warm, and full of hugs.</p>
+
+      <div class="greeting">
+        <strong>Today is yours.</strong> I hope this tiny card feels like a soft squeeze of the hand, a warm cup, and a hug — all at once.
+      </div>
+
+      <p class="soft-text">
+        You make everything brighter. I love your laugh, your sleepy mornings, the way you look at silly things, and how you make ordinary days magical.
+      </p>
+
+      <button class="btn" id="playBtn" aria-pressed="false">Send a kiss 💋</button>
+    </div>
+  </div>
+
+<script>
+/*
+  Parallax 3D tilt + floating hearts + gentle confetti
+  - No external libraries
+  - Replace "photo.jpg" with your photo
+*/
+
+/* ---- tilt 3D effect ---- */
+(function(){
+  const wrap = document.getElementById('photoCard');
+  const inner = document.getElementById('photoInner');
+  const portrait = document.getElementById('portrait');
+
+  function handleMove(e){
+    const rect = wrap.getBoundingClientRect();
+    const cx = rect.left + rect.width/2;
+    const cy = rect.top + rect.height/2;
+    const x = (e.clientX ?? (e.touches && e.touches[0].clientX)) || cx;
+    const y = (e.clientY ?? (e.touches && e.touches[0].clientY)) || cy;
+    const dx = (x - cx) / rect.width;
+    const dy = (y - cy) / rect.height;
+    const rx = clamp(-dy * 12, -18, 18);
+    const ry = clamp(dx * 14, -18, 18);
+    wrap.style.transform = `perspective(1400px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+    // slightly parallax photo
+    inner.style.transform = `translateZ(20px) rotateX(${rx*0.18}deg) rotateY(${ry*0.22}deg)`;
+    portrait.style.transform = `translateZ(48px) translateX(${ry*0.6}px) translateY(${rx*0.4}px) scale(1.02)`;
+  }
+
+  function handleLeave(){
+    wrap.style.transform = `perspective(1400px) rotateX(0deg) rotateY(0deg)`;
+    inner.style.transform = `translateZ(0) rotateX(0deg) rotateY(0deg)`;
+    portrait.style.transform = `translateZ(40px) scale(1.02)`;
+  }
+
+  function clamp(v, a, b){ return Math.max(a, Math.min(b, v)) }
+
+  wrap.addEventListener('mousemove', handleMove);
+  window.addEventListener('touchmove', handleMove, {passive:true});
+  wrap.addEventListener('mouseleave', handleLeave);
+  window.addEventListener('touchend', handleLeave);
+  // subtle tilt on initial hover for delight
+  wrap.addEventListener('mouseenter', () => {
+    wrap.style.transition = 'transform 260ms cubic-bezier(.22,.9,.2,1)';
+    inner.style.transition = 'transform 360ms cubic-bezier(.22,.9,.2,1)';
+    portrait.style.transition = 'transform 360ms cubic-bezier(.22,.9,.2,1), filter 360ms';
+  });
+})();
+
+/* ---- floating hearts generator ---- */
+(function(){
+  const layer = document.getElementById('floatingLayer');
+  const size = Math.min(18, Math.max(6, Math.floor(window.innerWidth/80)));
+  const HEART_SVG = (s, c) => {
+    return `<svg class="heart" viewBox="0 0 24 24" style="width:${s}px;height:${s}px;left:${rand(4,94)}%;top:${rand(60,110)}%; animation-duration:${randf(6,12)}s; opacity:${randf(0.75,1)};">
+      <path fill="${c}" d="M12 21s-7-4.6-9.3-7.1C-0.3 10.8 2.1 6 6.6 6 9 6 11 7.7 12 9.4 13 7.7 15 6 17.4 6c4.6 0 6.9 4.8 3.9 7.9C19 16.4 12 21 12 21z"/>
+    </svg>`;
+  };
+
+  // create a bunch of hearts
+  const colors = ['#ff8ccf','#ffd6e8','#ff6fb5','#ffa9d4'];
+  for(let i=0;i<12;i++){
+    const s = rand(12,34);
+    const c = colors[i % colors.length];
+    layer.insertAdjacentHTML('beforeend', HEART_SVG(s, c));
+  }
+
+  // utilities
+  function rand(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+  function randf(a,b){ return (Math.random()*(b-a)+a).toFixed(2); }
+})();
+
+/* ---- gentle sparkles/confetti ---- */
+(function(){
+  const sparkleLayer = document.getElementById('sparkles');
+  const colors = ['#fff2f8','#ffd7ef','#fff0fb','#ffd6f2','#fff9f6'];
+  const count = 18;
+  for(let i=0;i<count;i++){
+    const el = document.createElement('div');
+    el.className = 'sparkle';
+    el.style.left = Math.random()*88 + 6 + '%';
+    el.style.top = Math.random()*70 + 18 + '%';
+    el.style.width = (4 + Math.random()*10) + 'px';
+    el.style.height = el.style.width;
+    el.style.borderRadius = (Math.random()*50)+'%';
+    el.style.background = colors[Math.floor(Math.random()*colors.length)];
+    el.style.animationDuration = (6 + Math.random()*6) + 's';
+    el.style.opacity = 0.9;
+    el.style.transform = `translateY(0) rotate(${Math.random()*180}deg)`;
+    sparkleLayer.appendChild(el);
+  }
+})();
+
+/* ---- "Send a kiss" playful action (audio + tiny pulse) ---- */
+(function(){
+  const btn = document.getElementById('playBtn');
+  const nameEl = document.getElementById('girlName');
+
+  // If you want to change the displayed name, edit this string.
+  const GIRL_NAME = "My Love"; // change to your girlfriend's pet-name if you want
+  nameEl.textContent = GIRL_NAME;
+
+  // small audio (data URI short kiss sound) - fallback if audio not allowed
+  const kissBeep = new Audio("data:audio/wav;base64,UklGRlYAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAA="); // empty tiny
+  // The data URI is intentionally minimal (silent) to avoid autoplay policy problems.
+  btn.addEventListener('click', (e) => {
+    btn.animate([
+      { transform: 'scale(1)' },
+      { transform: 'scale(1.05)' },
+      { transform: 'scale(1)' }
+    ], { duration: 420, easing: 'ease-out' });
+
+    // small visible kiss effect: a heart bubble appears near button
+    showTransientHeart(e.target);
+    try{ kissBeep.play().catch(()=>{}); }catch(e){}
+
+    // gentle pulse on the photo
+    const portrait = document.getElementById('portrait');
+    portrait.animate([
+      { filter: 'brightness(1)' },
+      { filter: 'brightness(1.06) saturate(1.05)' },
+      { filter: 'brightness(1)' }
+    ], { duration: 700, easing: 'ease-in-out' });
+  });
+
+  function showTransientHeart(el){
+    const r = el.getBoundingClientRect();
+    const heart = document.createElement('div');
+    heart.innerHTML = '💋';
+    heart.style.position = 'fixed';
+    heart.style.left = (r.left + r.width/2 - 12) + 'px';
+    heart.style.top = (r.top - 10) + 'px';
+    heart.style.fontSize = '22px';
+    heart.style.opacity = '1';
+    heart.style.transition = 'transform 700ms ease, opacity 700ms ease';
+    document.body.appendChild(heart);
+    requestAnimationFrame(()=> {
+      heart.style.transform = 'translateY(-80px) scale(1.2)';
+      heart.style.opacity = '0';
+    });
+    setTimeout(()=> heart.remove(), 800);
+  }
+})();
+
+/* ---- accessibility: keyboard tilt toggles ---- */
+(function(){
+  const wrap = document.getElementById('photoCard');
+  let reduced = false;
+  // If user prefers reduced motion, disable animations
+  const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if(mq.matches){
+    document.documentElement.style.setProperty('--accent','#ff9ccf');
+    document.querySelectorAll('.heart, .sparkle').forEach(n=> n.style.animation = 'none');
+  }
+})();
+</script>
+</body>
+</html>
